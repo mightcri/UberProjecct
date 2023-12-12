@@ -1,0 +1,85 @@
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+
+# Sample data (replace this with your actual data)
+riders = []
+drivers = []
+rides = []
+
+# Rider API endpoints
+@app.route('/api/riders', methods=['GET'])
+def get_riders():
+    return jsonify({'riders': riders})
+
+@app.route('/api/riders/<int:rider_id>', methods=['GET'])
+def get_rider(rider_id):
+    rider = next((r for r in riders if r['userID'] == rider_id), None)
+    if rider:
+        return jsonify({'rider': rider})
+    return jsonify({'message': 'Rider not found'}), 404
+
+@app.route('/api/riders', methods=['POST'])
+def add_rider():
+    new_rider = {
+        'userID': len(riders) + 1,
+        'name': request.json['name'],
+        'email': request.json['email'],
+        'phone': request.json['phone'],
+        'location': request.json['location']
+    }
+    riders.append(new_rider)
+    return jsonify({'message': 'Rider added successfully'}), 201
+
+# Driver API endpoints
+@app.route('/api/drivers', methods=['GET'])
+def get_drivers():
+    return jsonify({'drivers': drivers})
+
+@app.route('/api/drivers/<int:driver_id>', methods=['GET'])
+def get_driver(driver_id):
+    driver = next((d for d in drivers if d['driverID'] == driver_id), None)
+    if driver:
+        return jsonify({'driver': driver})
+    return jsonify({'message': 'Driver not found'}), 404
+
+@app.route('/api/drivers', methods=['POST'])
+def add_driver():
+    new_driver = {
+        'driverID': len(drivers) + 1,
+        'name': request.json['name'],
+        'vehicleID': request.json['vehicleID'],
+        'locationID': request.json['locationID'],
+        'status': request.json['status'],
+        'rating': request.json['rating']
+    }
+    drivers.append(new_driver)
+    return jsonify({'message': 'Driver added successfully'}), 201
+
+# Ride API endpoints
+@app.route('/api/rides', methods=['GET'])
+def get_rides():
+    return jsonify({'rides': rides})
+
+@app.route('/api/rides/<int:ride_id>', methods=['GET'])
+def get_ride(ride_id):
+    ride = next((r for r in rides if r['rideID'] == ride_id), None)
+    if ride:
+        return jsonify({'ride': ride})
+    return jsonify({'message': 'Ride not found'}), 404
+
+@app.route('/api/rides', methods=['POST'])
+def request_ride():
+    new_ride = {
+        'rideID': len(rides) + 1,
+        'status': 'requested',
+        'startLocation': request.json['startLocation'],
+        'endLocation': request.json['endLocation'],
+        'fare': 0.0,
+        'rider': request.json['rider']
+    }
+    rides.append(new_ride)
+    return jsonify({'message': 'Ride requested successfully'}), 201
+
+if __name__ == '__main__':
+    app.run(debug=True)
